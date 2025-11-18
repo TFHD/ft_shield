@@ -1,0 +1,4 @@
+ft_shield
+obj/
+*.o
+*.d
