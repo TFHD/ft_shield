@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 13:27:44 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/21 15:03:16 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/21 15:36:55 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ int	ctx_init(t_ctx *ctx)
 	printf(LOGIN_42 "\n");
 
 	memset(ctx, 0, sizeof(t_ctx));
+	ctx->running = true;
 	signal(SIGINT, handle_sig);
 	signal(SIGTERM, handle_sig);
 	ctx->log_fd = open("ft_shield.log", O_WRONLY | O_CREAT | O_APPEND, 0644);

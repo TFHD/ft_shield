@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 11:24:44 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/21 14:30:10 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/21 15:36:46 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ typedef struct s_ctx
 {
 	t_server	server;
 	int			log_fd;
+	bool		running;
 }	t_ctx;
 
 int	ctx_init(t_ctx *ctx);

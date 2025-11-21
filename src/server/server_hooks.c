@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 13:28:48 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/21 15:11:48 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/21 15:39:05 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,11 @@ void	message_hook(t_client *client, char *msg, void *ptr)
 	{
 		logger_log(ctx, LOG_LOG, "Client %d help command entered", client->id);
 		server_send_to_id(&ctx->server, client->id, HELP_TEXT);
+	}
+	if (!strcmp(msg, "quit"))
+	{
+		logger_log(ctx, LOG_LOG, "Client %d quit command entered", client->id);
+		ctx->running = false;
 	}
 }
 

@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 18:15:16 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/21 14:47:49 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/21 15:36:39 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void	handle_sig(int sig)
 
 int	ctx_loop(t_ctx *ctx)
 {
-	while (g_sig == 0)
+	while (g_sig == 0 && ctx->running)
 	{
 		server_update(&ctx->server);
 
