@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/17 11:20:35 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/21 15:14:24 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/21 15:36:03 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -240,5 +240,6 @@ int	server_read_clients(t_server *server)
 			}
 		}
 	}
+	free(arr);
 	return (1);
 }
