@@ -6,12 +6,14 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 18:15:16 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/21 09:56:42 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/21 11:18:14 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.h"
 #include "sys/signal.h"
+#include <stdio.h>
+#include <fcntl.h>
 
 int	g_sig = 0;
 
@@ -66,7 +68,47 @@ char	*sha256(const char *input)
 	return (res);
 }
 
-int	check_client_password(t_server *server, t_client *client, char *msg)
+typedef struct s_ctx
+{
+	t_server	server;
+	int			log_fd;
+}	t_ctx;
+
+typedef enum e_log_type
+{
+	LOG_INFO,
+	LOG_LOG,
+	LOG_ERROR,
+	LOG_NONE,
+}	t_log_type;
+
+const char	*logger_get_log_header(t_log_type type)
+{
+	switch (type)
+	{
+		case LOG_INFO:
+			return ("[INFO] ");
+		case LOG_LOG:
+			return ("[LOG] ");
+		case LOG_ERROR:
+			return ("[ERROR] ");
+		default:
+			return ("[NONE] ");
+	}
+}
+
+void	logger_log(t_ctx *ctx, t_log_type type, char *str, ...)
+{
+	va_list	args;
+
+	va_start(args, str);
+	dprintf(ctx->log_fd, "%s", logger_get_log_header(type));
+	vdprintf(ctx->log_fd, str, args);
+	va_end(args);
+	dprintf(ctx->log_fd, "\n");
+}
+
+int	check_client_password(t_ctx *ctx, t_client *client, char *msg)
 {
 	if (!client->logged)
 	{
@@ -75,11 +117,13 @@ int	check_client_password(t_server *server, t_client *client, char *msg)
 		free(hashed_msg);
 		if (!cmp)
 		{
-			server_send_to_id(server, client->id, CORRECT_PASSWORD_TEXT);
+			logger_log(ctx, LOG_LOG, "Client %d correct password", client->id, msg);
+			server_send_to_id(&ctx->server, client->id, CORRECT_PASSWORD_TEXT);
 			client->logged = true;
-			return (1);
+			return (0);
 		}
-		server_send_to_id(server, client->id, INCORRECT_PASSWORD_TEXT);
+		logger_log(ctx, LOG_LOG, "Client %d wrong password", client->id, msg);
+		server_send_to_id(&ctx->server, client->id, INCORRECT_PASSWORD_TEXT);
 		return (0);
 	}
 	return (1);
@@ -87,41 +131,80 @@ int	check_client_password(t_server *server, t_client *client, char *msg)
 
 void	message_hook(t_client *client, char *msg, void *ptr)
 {
-	t_server	*server = ptr;
+	t_ctx	*ctx = ptr;
 
-	if (!check_client_password(server, client, msg))
+	if (!check_client_password(ctx, client, msg))
 		return ;
 
-	printf("From %d: %s\n", client->id, msg);
+	logger_log(ctx, LOG_LOG, "From %d: %s", client->id, msg);
 }
 
 void	connect_hook(t_client *client, void *ptr)
 {
-	t_server	*server = ptr;
+	t_ctx	*ctx = ptr;
 
-	server_send_to_id(server, client->id, "Welcome to server!\n");
-	server_send_to_id(server, client->id, PASSWORD_PROMPT_TEXT);
-	printf("Client %d joined\n", client->id);
+	server_send_to_id(&ctx->server, client->id, "Welcome to server!\n");
+	server_send_to_id(&ctx->server, client->id, PASSWORD_PROMPT_TEXT);
+	logger_log(ctx, LOG_INFO, "Client %d joined", client->id);
 }
 
 void	disconnect_hook(t_client *client, void *ptr)
 {
-	(void)client;(void)ptr;
-	printf("Client %d left\n", client->id);
+	t_ctx	*ctx = ptr;
+
+	logger_log(ctx, LOG_INFO, "Client %d left", client->id);
+}
+
+int	ctx_init(t_ctx *ctx)
+{
+	memset(ctx, 0, sizeof(t_ctx));
+	signal(SIGINT, handle_sig);
+
+	ctx->log_fd = open("ft_shield.log", O_WRONLY | O_CREAT | O_APPEND, 0644);
+	if (ctx->log_fd == -1)
+		return (0);
+	logger_log(ctx, LOG_INFO, "Starting ft_shield");
+
+	logger_log(ctx, LOG_INFO, "Opening server");
+	if (!server_open(&ctx->server, 7002))
+	{
+		logger_log(ctx, LOG_ERROR, "Failed to open server");
+		close(ctx->log_fd);
+		return (0);
+	}
+	server_set_message_hook(&ctx->server, message_hook, ctx);
+	server_set_connect_hook(&ctx->server, connect_hook, ctx);
+	server_set_disconnect_hook(&ctx->server, disconnect_hook, ctx);
+	logger_log(ctx, LOG_INFO, "Server opened");
+	return (1);
+}
+
+int	ctx_delete(t_ctx *ctx)
+{
+	logger_log(ctx, LOG_INFO, "Closing server");
+	server_close(&ctx->server);
+	logger_log(ctx, LOG_INFO, "Closing ft_shield");
+	close(ctx->log_fd);
+	return (0);
+}
+
+int	ctx_loop(t_ctx *ctx)
+{
+	while (g_sig == 0)
+	{
+		server_update(&ctx->server);
+
+	}
+	return (1);
 }
 
 int	main(void)
 {
-	t_server	server;
+	t_ctx	ctx;
 
-	signal(SIGINT, handle_sig);
-	if (!server_open(&server, 7002))
+	printf("mbatty\n");
+	if (!ctx_init(&ctx))
 		return (1);
-	server_set_message_hook(&server, message_hook, &server);
-	server_set_connect_hook(&server, connect_hook, &server);
-	server_set_disconnect_hook(&server, disconnect_hook, &server);
-	while (g_sig == 0)
-		server_update(&server);
-	server_close(&server);
-	return (0);
+	ctx_loop(&ctx);
+	return (ctx_delete(&ctx));
 }

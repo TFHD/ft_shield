@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/17 11:20:35 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/21 10:15:23 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/21 10:39:45 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,17 +180,11 @@ int	server_new_client(t_server *server)
 	return (1);
 }
 
-void	printcl(t_client *c)
-{
-	printf("%d %d\n", c->fd, c->id);
-}
-
 int	server_read_clients(t_server *server)
 {
 	t_client	**arr;
 	int	i = 1;
 
-	list_for_each(&server->clients, printcl);
 	arr = list_to_array(&server->clients);
 	for (uint64_t c = 0; c < server->clients.size;)
 	{

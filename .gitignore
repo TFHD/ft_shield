@@ -2,3 +2,6 @@ ft_shield
 obj/
 *.o
 *.d
+.vscode
+*.log
+*.lock
