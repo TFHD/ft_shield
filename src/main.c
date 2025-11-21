@@ -22,10 +22,7 @@ void	handle_sig(int sig)
 int	ctx_loop(t_ctx *ctx)
 {
 	while (g_sig == 0 && ctx->running)
-	{
 		server_update(&ctx->server);
-
-	}
 	return (1);
 }
 
