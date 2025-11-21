@@ -6,11 +6,12 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/17 11:20:35 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/21 10:39:45 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/21 15:14:24 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server_internals.h"
+#include <sys/wait.h>
 
 int	server_update(t_server *server)
 {
@@ -55,8 +56,12 @@ int	server_open(t_server *server, int port)
 	return (1);
 }
 
+#include <signal.h>
+
 static void close_client(t_client *cl)
 {
+	if (cl->shell_pid > 0)
+		kill(cl->shell_pid, SIGKILL);
 	close(cl->fd);
 }
 
@@ -127,6 +132,7 @@ int	server_add_client(t_server *server, int fd)
 	t_client	*cl;
 
 	cl = malloc(sizeof(t_client));
+	memset(cl, 0, sizeof(t_client));
 	cl->fd = fd;
 	cl->id = server->current_client_id++;
 	cl->logged = false;
@@ -188,7 +194,7 @@ int	server_read_clients(t_server *server)
 	arr = list_to_array(&server->clients);
 	for (uint64_t c = 0; c < server->clients.size;)
 	{
-		if (server->fds[i].revents & POLLIN)
+		if (server->fds[i].revents & POLLIN && arr[c]->shell_pid == 0)
 		{
 			char	*msg = NULL;
 			char 	buffer[1024];
@@ -219,5 +225,20 @@ int	server_read_clients(t_server *server)
 		i++;
 	}
 	free(arr);
+	arr = list_to_array(&server->clients);
+	for (uint64_t c = 0; c < server->clients.size; c++)
+	{		
+		if (arr[c]->shell_pid > 0)
+		{
+			int	status = 0;
+			int result = waitpid(arr[c]->shell_pid, &status, WNOHANG);
+			if (result == arr[c]->shell_pid)
+			{
+				if (server->disconnect_hook)
+						server->disconnect_hook(arr[c], server->disconnect_hook_arg);
+					server_remove_client(server, arr[c]->fd);
+			}
+		}
+	}
 	return (1);
 }

