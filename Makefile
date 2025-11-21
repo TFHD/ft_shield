@@ -9,7 +9,8 @@ SRCS =	src/main.c\
 		src/server.c\
 		src/server_utils.c\
 		src/list.c\
-		src/list_node.c
+		src/list_node.c\
+		src/logger.c
 
 OBJDIR = obj
 OBJS = $(SRCS:%.c=$(OBJDIR)/%.o)
