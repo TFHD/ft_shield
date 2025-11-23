@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 11:24:44 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/21 23:02:44 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/23 09:56:37 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@
 # define UNKNOWN_COMMAND_TEXT		TEXT_BLUE	TEXT_BOLD "Unknown command. (see help)\n"														TEXT_RESET
 
 # define LOWERCASE_HEXA "0123456789abcdef"
-# define SERVER_PORT 7002
+# define SERVER_PORT 4242
 
 # define PASSWORD "c2b9ce9e110fe946e9bf5e63becb6e70" // mbatty42
 # define LOGIN_42 "mbatty"
@@ -73,7 +73,7 @@ const char	*logger_get_log_header(t_log_type type);
 void	logger_log_timestamp(int fd);
 void	logger_log(t_ctx *ctx, t_log_type type, char *str, ...);
 
-void	export_payload(char *src_path, char *dst_path);
+int	export_payload(char *src_path, char *dst_path);
 void	exec_payload(char *payload_path, char **envp);
 
 #endif

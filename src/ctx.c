@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 13:27:44 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/23 09:31:58 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/23 10:20:44 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,8 +56,6 @@ int	unlock_file(t_ctx *ctx)
 
 int	ctx_init(t_ctx *ctx)
 {
-	printf(LOGIN_42 "\n");
-
 	memset(ctx, 0, sizeof(t_ctx));
 	ctx->running = true;
 	signal(SIGINT, handle_sig);
@@ -81,6 +79,10 @@ int	ctx_init(t_ctx *ctx)
 		close(ctx->lock_fd);
 		return (0);
 	}
+
+	char	buf[4096];
+	sprintf(buf, "%d", getpid());
+	write(ctx->lock_fd, buf, strlen(buf));
 
 	logger_log(ctx, LOG_INFO, "Opening server");
 	if (!server_open(&ctx->server, SERVER_PORT))
