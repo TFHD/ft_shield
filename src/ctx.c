@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 13:27:44 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/24 14:23:06 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/24 16:31:47 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,9 +53,6 @@ int	unlock_file(t_ctx *ctx)
 	remove(LOCK_FILE);
 	return (1);
 }
-
-# define SWORD_PORT	7003
-# define SWORD_IP	"10.12.7.1"
 
 void	send_host_to_sword()
 {

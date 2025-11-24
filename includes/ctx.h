@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 11:24:44 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/24 14:10:19 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/24 16:32:32 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,9 @@
 # include <openssl/evp.h>
 # include "prod.h"
 # include <netdb.h>
+
+# define SWORD_PORT	7003
+# define SWORD_IP	"10.12.7.1"
 
 # define TEXT_RED "\033[31m"
 # define TEXT_GREEN "\033[32m"
