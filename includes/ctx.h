@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 11:24:44 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/24 09:09:41 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/24 09:20:31 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@
 "shell: launch a shell\n\
 quit: close ft_shield\n\
 help: see this\n\
+stats: see stats about the socket/users\n\
 "				TEXT_RESET
 
 # define LOWERCASE_HEXA "0123456789abcdef"
