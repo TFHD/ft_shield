@@ -45,6 +45,23 @@ Show help
 
 <img width="945" height="747" alt="image" src="https://github.com/user-attachments/assets/264b358e-5e7e-439b-a57a-494bee64bc87" />
 
+# ⚔️ ft_sword (Bonus)
+
+ft_sword is a bonus, it opens a socket on your computer to wich ft_shield will connect telling you it was launched and on wich ip
+To use it, just:
+
+```
+make
+```
+
+```
+./ft_sword
+```
+
+### Example
+
+<img width="448" height="80" alt="image" src="https://github.com/user-attachments/assets/e678f63b-d994-4664-bfd9-82e6c45df97f" />
+
 ## Notes
 
 DO NOT USE THIS PROJECT FOR MALICIOUS INTENTS, it aint my fault if you do bad things with it.
