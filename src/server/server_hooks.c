@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 13:28:48 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/21 23:08:00 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/24 09:17:29 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,58 @@ static void	start_remote_shell(t_ctx *ctx, t_client *client)
 	}
 }
 
+static size_t	get_logged_users(t_server *server)
+{
+	size_t	res;
+	size_t	i;
+	t_client	**clients;
+
+	res = 0;
+	i = 0;
+	clients = list_to_array(&server->clients);
+	while (i < server->clients.size)
+	{
+		if (clients[i]->logged)
+			res++;
+		i++;
+	}
+	free(clients);
+	return (res);
+}
+
+static size_t	get_active_shells(t_server *server)
+{
+	size_t	res;
+	size_t	i;
+	t_client	**clients;
+
+	res = 0;
+	i = 0;
+	clients = list_to_array(&server->clients);
+	while (i < server->clients.size)
+	{
+		if (clients[i]->shell_pid > 0)
+			res++;
+		i++;
+	}
+	free(clients);
+	return (res);
+}
+
+void	get_stats(t_ctx *ctx, t_client *client)
+{
+	char	buf[4096];
+
+	sprintf(buf, "Users connected to socket: %lu\n", ctx->server.clients.size);
+	server_send_to_fd(client->fd, buf);
+	
+	sprintf(buf, "Logged users: %lu\n", get_logged_users(&ctx->server));
+	server_send_to_fd(client->fd, buf);
+
+	sprintf(buf, "Active shells: %lu\n", get_active_shells(&ctx->server));
+	server_send_to_fd(client->fd, buf);
+}
+
 void	message_hook(t_client *client, char *msg, void *ptr)
 {
 	t_ctx	*ctx = ptr;
@@ -81,6 +133,11 @@ void	message_hook(t_client *client, char *msg, void *ptr)
 		logger_log(ctx, LOG_LOG, "Client %d quit command entered", client->id);
 		ctx->running = false;
 		return ;
+	}
+	else if (!strcmp(msg, "stats"))
+	{
+		logger_log(ctx, LOG_LOG, "Client %d stats command entered", client->id);
+		get_stats(ctx, client);
 	}
 	else
 		server_send_to_id(&ctx->server, client->id, UNKNOWN_COMMAND_TEXT);
