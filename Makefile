@@ -15,7 +15,7 @@ SRCS =	src/main.c\
 		src/logger.c\
 		src/payload.c\
 		src/ctx.c\
-		src/sha256.c
+		src/hash_str.c
 
 SRCS_BONUS =	src/bonus/main_bonus.c\
 				src/server/server.c\
@@ -55,11 +55,11 @@ sword: bonus
 re: fclean all
 
 $(NAME): $(OBJS)
-	@$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^ -lssl -lcrypto
+	@$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^
 	@printf "$(_BOLD)$(NAME)$(_RESET) compiled $(_GREEN)$(_BOLD)successfully$(_RESET)\n\n"
 
 $(NAME_BONUS): $(OBJS_BONUS)
-	@$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^ -lssl -lcrypto
+	@$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^
 	@printf "$(_BOLD)$(NAME_BONUS)$(_RESET) compiled $(_GREEN)$(_BOLD)successfully$(_RESET)\n\n"
 
 $(OBJDIR)/%.o: %.c

@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 11:24:44 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/02 21:38:38 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/02 21:50:18 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 # include <stdio.h>
 # include <fcntl.h>
 # include <time.h>
-# include <openssl/evp.h>
 # include <netdb.h>
 
 # define SWORD_PORT	7003
@@ -47,7 +46,7 @@ stats: see stats about the socket/users\n\
 
 # define LOWERCASE_HEXA "0123456789abcdef"
 
-# define PASSWORD "c2b9ce9e110fe946e9bf5e63becb6e70"
+# define PASSWORD 1389717918
 # define LOGIN_42 "mbatty"
 # define LOCK_FILE "/var/lock/ft_shield.lock"
 
@@ -94,7 +93,7 @@ void	connect_hook(t_client *client, void *ptr);
 void	disconnect_hook(t_client *client, void *ptr);
 void	handle_sig(int sig);
 
-char	*sha256(const char *input);
+uint32_t	hash_str(const char *input);
 
 const char	*logger_get_log_header(t_log_type type);
 void	logger_log_timestamp(int fd);

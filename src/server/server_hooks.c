@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 13:28:48 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/02 21:25:40 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/02 21:49:52 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,19 +16,17 @@ static int	check_client_password(t_ctx *ctx, t_client *client, char *msg)
 {
 	if (!client->logged)
 	{
-		char *hashed_msg = sha256(msg);
-		if (!strcmp(hashed_msg, PASSWORD))
+		int hashed_msg = hash_str(msg);
+		if (hashed_msg == PASSWORD)
 		{
-			logger_log(ctx, LOG_LOG, "Client %d correct password (%s)", client->id, hashed_msg);
+			logger_log(ctx, LOG_LOG, "Client %d correct password (%d)", client->id, hashed_msg);
 			server_send_to_id(&ctx->server, client->id, CORRECT_PASSWORD_TEXT);
 			server_send_to_fd(client->fd, PROMPT);
 			client->logged = true;
-			free(hashed_msg);
 			return (0);
 		}
-		logger_log(ctx, LOG_LOG, "Client %d wrong password (%s)", client->id, hashed_msg);
+		logger_log(ctx, LOG_LOG, "Client %d wrong password (%d)", client->id, hashed_msg);
 		server_send_to_id(&ctx->server, client->id, INCORRECT_PASSWORD_TEXT);
-		free(hashed_msg);
 		return (0);
 	}
 	return (1);
