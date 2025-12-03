@@ -6,3 +6,4 @@ obj/
 .vscode
 *.log
 *.lock
+transfer_out

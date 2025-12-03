@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/17 11:20:35 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/03 12:53:12 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/03 13:20:34 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,10 +207,14 @@ char	*append_to_str(char *s1, char *s2, size_t s1len, size_t s2len)
 	if (!s1)
 	{
 		char	*res = calloc(s2len, sizeof(char));
+		if (!res)
+			return (NULL);
 		memcpy(res, s2, s2len);
 		return (res);
 	}
 	char	*res = calloc(s1len + s2len, sizeof(char));
+	if (!res)
+		return (NULL);
 	memcpy(res, s1, s1len);
 	memcpy(res + s1len, s2, s2len);
 	free(s1);
@@ -288,10 +292,7 @@ int	server_read_clients(t_server *server)
 				{
 					arr[c]->receiving_file = true;
 					arr[c]->file_size = atoll(msg + 9);
-					// if (msg + 10)
-					// 	arr[c]->total_size = strlen(msg + 10);
-					// else
-						arr[c]->total_size = 0;
+					arr[c]->total_size = 0;
 					printf("Received file transfer size %ld\n", arr[c]->file_size);
 					free(msg);
 					break ;
