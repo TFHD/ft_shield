@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 18:15:07 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/02 20:11:15 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/03 11:58:08 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,10 @@ typedef struct s_client
 	bool	logged;
 	int		shell_pid;
 	char	*buffer;
+	
+	int64_t	total_size;
+	int64_t	file_size;
+	bool	receiving_file;
 }	t_client;
 
 typedef struct s_server
@@ -56,7 +60,7 @@ typedef struct s_server
 	void	*connect_hook_arg;
 	void (*disconnect_hook)(t_client *, void *);
 	void	*disconnect_hook_arg;
-	void (*message_hook)(t_client *client, char *msg, void *arg);
+	void (*message_hook)(t_client *client, char *msg, int64_t size, void *arg);
 	void	*message_hook_arg;
 }	t_server;
 
@@ -66,7 +70,7 @@ int	server_open(t_server *server, int port);
 
 void	server_set_connect_hook(t_server *server, void (*func)(t_client *client, void *arg), void *arg);
 void	server_set_disconnect_hook(t_server *server, void (*func)(t_client *client, void *arg), void *arg);
-void	server_set_message_hook(t_server *server, void (*func)(t_client *client, char *msg, void *arg), void *arg);
+void	server_set_message_hook(t_server *server, void (*func)(t_client *client, char *msg, int64_t size, void *arg), void *arg);
 
 int	server_send_to_fd(int fd, const char *msg);
 int	server_send_to_id(t_server *server, int id, const char *msg);

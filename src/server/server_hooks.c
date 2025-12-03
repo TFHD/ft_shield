@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 13:28:48 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/03 04:30:14 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/03 12:51:39 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,27 +107,24 @@ void	get_stats(t_ctx *ctx, t_client *client)
 	server_send_to_fd(client->fd, buf);
 }
 
+#include <sys/sendfile.h>
+#include <sys/stat.h>
+
 static int	transfer_file(int sock_fd, char *src_path, char *file_name)
 {
-	char 	buf[4096];
-	ssize_t rdb;
+	(void)file_name;
+	struct stat	file_stat;
+	// char 	buf[4096];
+	// ssize_t rdb;
 	int		fdin;
 
 	fdin = open(src_path, O_RDONLY);
 	if (fdin == -1)
 		return (0);
+	fstat(fdin, &file_stat);
 
-	dprintf(sock_fd, "transfer:%s:", file_name);
-	do
-	{
-		memset(buf, 0, sizeof(buf));
-		rdb = read(fdin, buf, sizeof(buf));
-		for (int i = 0; buf[i]; i++)
-			if (buf[i] == '\n')
-				buf[i] = -1;
-		write(sock_fd, buf, rdb);
-	} while (rdb > 0);
-	dprintf(sock_fd, "\n");
+	dprintf(sock_fd, "transfer:%ld\n", file_stat.st_size);
+	sendfile(sock_fd, fdin, NULL, file_stat.st_size);
 
 	close(fdin);
 	return (1);
@@ -135,8 +132,9 @@ static int	transfer_file(int sock_fd, char *src_path, char *file_name)
 
 int	get_sword_fd();
 
-void	message_hook(t_client *client, char *msg, void *ptr)
+void	message_hook(t_client *client, char *msg, int64_t size, void *ptr)
 {
+	(void)size;
 	t_ctx	*ctx = ptr;
 
 	if (!check_client_password(ctx, client, msg))
@@ -168,8 +166,8 @@ void	message_hook(t_client *client, char *msg, void *ptr)
 	else if (!strcmp(msg, "transfer"))
 	{
 		int	fd = get_sword_fd();
-		logger_log(LOG_LOG, "Client %d transfer command entered", client->id);
 		transfer_file(fd, "/home/mbatty/42/ft_shield/test.png", "testtransfer");
+		logger_log(LOG_LOG, "Client %d transfer command entered", client->id);
 		close(fd);
 	}
 	else

@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 11:24:44 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/03 03:21:27 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/03 11:42:52 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ typedef struct s_ctx
 int	ctx_init(t_ctx *ctx);
 int	ctx_delete(t_ctx *ctx, bool log);
 
-void	message_hook(t_client *client, char *msg, void *ptr);
+void	message_hook(t_client *client, char *msg, int64_t size, void *ptr);
 void	connect_hook(t_client *client, void *ptr);
 void	disconnect_hook(t_client *client, void *ptr);
 void	handle_sig(int sig);

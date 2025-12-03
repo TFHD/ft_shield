@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/17 11:20:35 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/02 21:25:02 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/03 12:53:12 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ int	server_close(t_server *server)
 	return (1);
 }
 
-void	server_set_message_hook(t_server *server, void (*func)(t_client *client, char *msg, void *arg), void *arg)
+void	server_set_message_hook(t_server *server, void (*func)(t_client *client, char *msg, int64_t size, void *arg), void *arg)
 {
 	server->message_hook = func;
 	server->message_hook_arg = arg;
@@ -202,6 +202,21 @@ int	server_new_client(t_server *server)
 	return (1);
 }
 
+char	*append_to_str(char *s1, char *s2, size_t s1len, size_t s2len)
+{
+	if (!s1)
+	{
+		char	*res = calloc(s2len, sizeof(char));
+		memcpy(res, s2, s2len);
+		return (res);
+	}
+	char	*res = calloc(s1len + s2len, sizeof(char));
+	memcpy(res, s1, s1len);
+	memcpy(res + s1len, s2, s2len);
+	free(s1);
+	return (res);
+}
+
 int	server_read_clients(t_server *server)
 {
 	t_client	**arr;
@@ -212,31 +227,78 @@ int	server_read_clients(t_server *server)
 	{
 		if (server->fds[i].revents & POLLIN && arr[c]->shell_pid == 0)
 		{
-			while (1)
+			if (!arr[c]->receiving_file)
 			{
-				char 	buffer[1024] = {0};
-				ssize_t size;
-	
-				size = recv(arr[c]->fd, buffer, sizeof(buffer), 0);
-				if (size == 0 || size == -1)
+				while (1)
 				{
-					if (server->disconnect_hook)
-						server->disconnect_hook(arr[c], server->disconnect_hook_arg);
-					server_remove_client(server, arr[c]->fd);
-					goto skip_it;
+					char 	buffer[1024] = {0};
+					ssize_t size;
+		
+					size = recv(arr[c]->fd, buffer, sizeof(buffer), 0);
+					if (size == 0 || size == -1)
+					{
+						if (server->disconnect_hook)
+							server->disconnect_hook(arr[c], server->disconnect_hook_arg);
+						server_remove_client(server, arr[c]->fd);
+						goto skip_it;
+					}
+					arr[c]->buffer = server_strjoin(arr[c]->buffer, buffer);
+					if (server_strchr(arr[c]->buffer, '\n'))
+						break ;
 				}
-				arr[c]->buffer = server_strjoin(arr[c]->buffer, buffer);
-				if (server_strchr(arr[c]->buffer, '\n'))
-					break ;
+			}
+			else
+			{
+				while (1)
+				{
+					char 	buffer[1024] = {0};
+					ssize_t size;
+		
+					size = recv(arr[c]->fd, buffer, sizeof(buffer), 0);
+					if (size == 0 || size == -1)
+					{
+						if (server->disconnect_hook)
+							server->disconnect_hook(arr[c], server->disconnect_hook_arg);
+						server_remove_client(server, arr[c]->fd);
+						goto skip_it;
+					}
+					arr[c]->buffer = append_to_str(arr[c]->buffer, buffer, arr[c]->total_size, size);
+					arr[c]->total_size += size;
+					if (arr[c]->total_size >= arr[c]->file_size)
+						break ;
+				}
 			}
 			while (1)
 			{
+				if (arr[c]->receiving_file)
+				{
+					printf("Total size %ld\n", arr[c]->total_size);
+					if (server->message_hook)
+						server->message_hook(arr[c], arr[c]->buffer, arr[c]->file_size, server->message_hook_arg);
+					arr[c]->receiving_file = false;
+					free(arr[c]->buffer);	
+					arr[c]->buffer = NULL;
+					break ;
+				}
 				char	*msg = server_extract_line(&arr[c]->buffer);
 				if (!msg)
 					break ;
 
+				if (!strncmp(msg, "transfer:", 9))
+				{
+					arr[c]->receiving_file = true;
+					arr[c]->file_size = atoll(msg + 9);
+					// if (msg + 10)
+					// 	arr[c]->total_size = strlen(msg + 10);
+					// else
+						arr[c]->total_size = 0;
+					printf("Received file transfer size %ld\n", arr[c]->file_size);
+					free(msg);
+					break ;
+				}
+
 				if (server->message_hook)
-					server->message_hook(arr[c], msg, server->message_hook_arg);
+					server->message_hook(arr[c], msg, strlen(msg), server->message_hook_arg);
 				free(msg);
 			}
 		}

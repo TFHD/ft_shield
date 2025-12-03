@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/24 11:03:41 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/03 04:30:03 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/03 12:33:01 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,24 +41,21 @@ int	get_transfer(char *msg)
 		printf("Could not create %s\n", file_name);
 		return (0);
 	}
-	for (int i = 0; content[i] ; i++)
-		if (content[i] == -1)
-			content[i] = '\n';
 	write(fd, content, strlen(content) + 1);
 	return (1);
 }
 
-void	msg_hook(t_client *client, char *msg, void *arg)
+void	msg_hook(t_client *client, char *msg, int64_t size, void *arg)
 {
-	(void)arg;(void)client;
-	if (!strncmp(msg, "transfer", 8))
+	(void)arg;(void)client;(void)size;
+	if (client->receiving_file)
 	{
-		printf("Starting transfer\n");
-		get_transfer(msg);
-		printf("Transfer done\n");
-		return ;
+		int	fd = open("transfer_out", O_CREAT | O_WRONLY | O_TRUNC, 0777);
+
+		write(fd, (unsigned char*)msg, size);
 	}
-	printf("\a%s\n", msg);
+	else
+		printf("\a%s\n", msg);
 }
 
 int	main(void)
