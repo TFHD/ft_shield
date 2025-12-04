@@ -6,13 +6,13 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 11:24:38 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/03 00:39:39 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/04 09:46:04 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ctx.h"
 
-const char	*logger_get_log_header(t_log_type type)
+static const char	*logger_get_log_header(t_log_type type)
 {
 	switch (type)
 	{
@@ -27,7 +27,7 @@ const char	*logger_get_log_header(t_log_type type)
 	}
 }
 
-void	logger_log_timestamp(int fd)
+static void	logger_log_timestamp(int fd)
 {
 	time_t t = time(0);
 	struct tm* tm = localtime(&t);
@@ -36,8 +36,6 @@ void	logger_log_timestamp(int fd)
 	strftime(buf, sizeof(buf), "[%d/%m/%Y-%H:%M:%S]", tm);
 	dprintf(fd, "%s", buf);
 }
-
-int	get_sword_fd();
 
 void	logger_log(t_log_type type, char *str, ...)
 {

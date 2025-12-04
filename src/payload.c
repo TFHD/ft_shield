@@ -6,13 +6,13 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 13:27:21 by mbatty            #+#    #+#             */
-/*   Updated: 2025/11/27 14:29:24 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/04 09:45:38 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ctx.h"
 
-int	setup_service(bool root)
+static int	setup_service(bool root)
 {
 	if (root)
 	{

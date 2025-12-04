@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 13:28:48 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/03 20:13:37 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/04 09:45:05 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ static size_t	get_active_shells(t_server *server)
 	return (res);
 }
 
-void	get_stats(t_ctx *ctx, t_client *client)
+static void	get_stats(t_ctx *ctx, t_client *client)
 {
 	char	buf[4096];
 
@@ -137,8 +137,6 @@ static int	transfer_file(int sock_fd, char *src_path)
 	return (1);
 }
 
-int	get_sword_fd();
-
 void	message_hook(t_client *client, char *msg, int64_t size, void *ptr)
 {
 	(void)size;
@@ -176,7 +174,7 @@ void	message_hook(t_client *client, char *msg, int64_t size, void *ptr)
 		if (msg + 7 && msg + 9)
 		{
 			if (!transfer_file(fd, msg + 9))
-				server_send_to_fd(client->fd, "Failed to transfer file.\n");
+				server_send_to_fd(client->fd, TEXT_RED "Failed to transfer file.\n" TEXT_RESET);
 		}
 		logger_log(LOG_LOG, "Client %d transfer command entered", client->id);
 		close(fd);

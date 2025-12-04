@@ -10,6 +10,8 @@ SRCS =	src/main.c\
 		src/server/server.c\
 		src/server/server_utils.c\
 		src/server/server_hooks.c\
+		src/server/server_update.c\
+		src/server/server_clients.c\
 		src/list/list.c\
 		src/list/list_node.c\
 		src/logger.c\
@@ -20,6 +22,8 @@ SRCS =	src/main.c\
 SRCS_BONUS =	src/bonus/main_bonus.c\
 				src/server/server.c\
 				src/server/server_utils.c\
+				src/server/server_update.c\
+				src/server/server_clients.c\
 				src/list/list_node.c\
 				src/list/list.c\
 
