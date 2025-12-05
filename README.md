@@ -46,7 +46,7 @@ Show help
 
 ### Example
 
-<img width="945" height="747" alt="image" src="https://github.com/user-attachments/assets/264b358e-5e7e-439b-a57a-494bee64bc87" />
+<img width="953" height="829" alt="Screenshot from 2025-12-05 13-11-55" src="https://github.com/user-attachments/assets/3bf78c52-b628-4d97-a11a-ab4bd146e1b7" />
 
 # ⚔️ ft_sword (Bonus)
 
@@ -64,7 +64,7 @@ make bonus
 
 ### Example
 
-<img width="448" height="80" alt="image" src="https://github.com/user-attachments/assets/e678f63b-d994-4664-bfd9-82e6c45df97f" />
+<img width="941" height="490" alt="image" src="https://github.com/user-attachments/assets/8a6c5067-0fb8-4e8e-8e1b-771b58ff8795" />
 
 ## Notes
 
