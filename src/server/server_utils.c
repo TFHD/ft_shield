@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/17 12:26:03 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/05 10:55:57 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/06 14:50:50 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,8 @@ char	*server_extract_line(char **str)
 	len = nl - *str;
 	i = 0;
 	nl = malloc((len + 1) * sizeof(char));
+	if (!nl)
+		return (NULL);
 	while (i < len)
 	{
 		nl[i] = (*str)[i];
@@ -81,6 +83,8 @@ char	*server_extract_line(char **str)
 	}
 	nl[i] = 0;
 	tmp = server_strdup(&(*str)[i + 1]);
+	if (!tmp)
+		return (NULL);
 	free(*str);
 	*str = tmp;
 	return (nl);

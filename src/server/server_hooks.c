@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 13:28:48 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/06 14:05:17 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/06 14:56:20 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,8 @@ static size_t	get_active_shells(t_server *server)
 	res = 0;
 	i = 0;
 	clients = list_to_array(&server->clients);
+	if (!clients)
+		return (0);
 	while (i < server->clients.size)
 	{
 		if (clients[i]->shell_pid > 0)
@@ -123,7 +125,7 @@ static int	transfer_file(int sock_fd, char *src_path)
 
 	dprintf(sock_fd, "transfer:%ld\n", file_stat.st_size);
 
-	sleep(1); // Goofy aah but it was the best way I found for it to be somewhat reliable (In a perfect world I would wait for a confirmation from server)
+	sleep(1);
 
 	char 	buf[4096];
 	ssize_t rdb;

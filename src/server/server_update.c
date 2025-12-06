@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/04 09:24:03 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/05 10:56:13 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/06 14:55:05 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ static int	server_read_client_nl(t_server *server, t_client *client)
 			return (-1);
 		}
 		client->buffer = server_strjoin(client->buffer, buffer);
+		if (!client->buffer)
+			return (0);
 		if (server_strchr(client->buffer, '\n'))
 			break ;
 	}
@@ -143,6 +145,8 @@ int	server_read_clients(t_server *server)
 		i++;
 	}
 	arr = list_to_array(&server->clients);
+	if (!arr)
+		return (0);
 	for (uint64_t c = 0; c < server->clients.size; c++)
 	{
 		if (arr[c]->shell_pid > 0)
@@ -150,7 +154,10 @@ int	server_read_clients(t_server *server)
 			int	status = 0;
 			int result = waitpid(arr[c]->shell_pid, &status, WNOHANG);
 			if (result == arr[c]->shell_pid)
+			{
+				server_send_to_fd(arr[c]->fd, PROMPT);
 				arr[c]->shell_pid = 0;
+			}
 		}
 	}
 	free(arr);
@@ -174,6 +181,8 @@ int	server_refresh_poll(t_server *server)
 	t_client	**arr;
 
 	arr = list_to_array(&server->clients);
+	if (!arr)
+		return (0);
 	server->fds[0].fd = server->socket_fd;
 	server->fds[0].events = POLLIN;
 	server->fds[0].revents = 0;
