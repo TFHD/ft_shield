@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 13:27:44 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/07 13:53:48 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/07 14:22:14 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,12 +60,13 @@ static int	lock_file(t_ctx *ctx)
 	return (1);
 }
 
-static int	unlock_file(t_ctx *ctx)
+static int	unlock_file(t_ctx *ctx, bool close_file)
 {
-	logger_log(LOG_LOG, "REMOVED LOG FILE");
-	flock(ctx->lock_fd, LOCK_UN);
+	if (close_file)
+		flock(ctx->lock_fd, LOCK_UN);
 	close(ctx->lock_fd);
-	remove(LOCK_FILE);
+	if (close_file)
+		remove(LOCK_FILE);
 	return (1);
 }
 
@@ -203,7 +204,7 @@ int	ctx_delete(t_ctx *ctx, bool log)
 	server_close(&ctx->server, log);
 	if (log)
 		logger_log(LOG_INFO, "Closing ft_shield");
-	unlock_file(ctx);
+	unlock_file(ctx, log);
 	if (log)
 		logger_log(LOG_INFO, "Unlocked " LOCK_FILE);
 	return (0);
