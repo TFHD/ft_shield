@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/24 11:03:41 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/06 14:06:52 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/07 11:05:27 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	handle_sig(int sig)
 	g_sig = sig;
 }
 
-void	msg_hook(t_client *client, char *msg, int64_t size, void *arg)
+int	msg_hook(t_client *client, char *msg, int64_t size, void *arg)
 {
 	(void)arg;
 	if (client->receiving_file)
@@ -33,6 +33,7 @@ void	msg_hook(t_client *client, char *msg, int64_t size, void *arg)
 	}
 	else
 		printf("\a%s\n", msg);
+	return (1);
 }
 
 int	main(void)

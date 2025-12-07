@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/17 11:20:35 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/06 14:06:23 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/07 11:04:50 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ int	server_close(t_server *server, bool kill_shells)
 	return (1);
 }
 
-void	server_set_message_hook(t_server *server, void (*func)(t_client *client, char *msg, int64_t size, void *arg), void *arg)
+void	server_set_message_hook(t_server *server, int (*func)(t_client *client, char *msg, int64_t size, void *arg), void *arg)
 {
 	server->message_hook = func;
 	server->message_hook_arg = arg;

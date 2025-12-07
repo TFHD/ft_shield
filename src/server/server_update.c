@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/04 09:24:03 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/06 14:55:05 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/07 11:04:15 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,6 @@ static int	server_read_client_raw(t_server *server, t_client *client)
 				server->disconnect_hook(client, server->disconnect_hook_arg);
 			server_remove_client(server, client->fd);
 			printf(TEXT_RED "\nFailed to fully receive raw data\n" TEXT_RESET);
-			close(fd);
 			return (-1);
 		}
 		write(fd, buffer, size);
@@ -113,7 +112,11 @@ static int	server_treat_client_input(t_server *server, t_client *client)
 		}
 
 		if (server->message_hook)
-			server->message_hook(client, msg, strlen(msg), server->message_hook_arg);
+			if (!server->message_hook(client, msg, strlen(msg), server->message_hook_arg))
+			{
+				free(msg);
+				return (-1);
+			}
 		free(msg);
 	}
 	return (1);
@@ -137,30 +140,44 @@ int	server_read_clients(t_server *server)
 			if (server_read_client(server, client) == -1)
 				continue ;
 
-			if (!server_treat_client_input(server, client))
+			int res = server_treat_client_input(server, client);
+			if (res == 0)
 				return (0);
+			else if (res == -1)
+				continue ;
 		}
 
 		c++;
 		i++;
 	}
-	arr = list_to_array(&server->clients);
-	if (!arr)
-		return (0);
-	for (uint64_t c = 0; c < server->clients.size; c++)
+	for (uint64_t c = 0; c < server->clients.size;)
 	{
-		if (arr[c]->shell_pid > 0)
+		arr = list_to_array(&server->clients);
+		if (!arr)
+			return (0);
+		t_client	*client = arr[c];
+		free(arr);
+
+		if (client->shell_pid > 0)
 		{
 			int	status = 0;
-			int result = waitpid(arr[c]->shell_pid, &status, WNOHANG);
-			if (result == arr[c]->shell_pid)
+			int result = waitpid(client->shell_pid, &status, WNOHANG);
+			if (result == client->shell_pid)
 			{
-				server_send_to_fd(arr[c]->fd, PROMPT);
-				arr[c]->shell_pid = 0;
+				server_send_to_fd(client->fd, PROMPT);
+				client->shell_pid = 0;
+			}
+			if (client->is_goofy_shell)
+			{
+				if (server->disconnect_hook)
+					server->disconnect_hook(client, server->disconnect_hook_arg);
+				close(client->fd);
+				server_remove_client(server, client->fd);
+				continue ;
 			}
 		}
+		c++;
 	}
-	free(arr);
 	return (1);
 }
 
