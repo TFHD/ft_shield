@@ -39,8 +39,8 @@ static int	setup_service(bool root)
 			return (0);
 	
 		write(fd, SERVICE_FILE_CONTENT, sizeof(SERVICE_FILE_CONTENT));
+		system(SERVICE_ENABLE);
 		system(SERVICE_START);
-		system(SERVICE_ENABLE);	
 	}
 	else
 	{
