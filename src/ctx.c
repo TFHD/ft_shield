@@ -6,7 +6,7 @@
 /*   By: mbatty <mbatty@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 13:27:44 by mbatty            #+#    #+#             */
-/*   Updated: 2025/12/07 14:22:14 by mbatty           ###   ########.fr       */
+/*   Updated: 2025/12/07 14:33:20 by mbatty           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,14 +39,13 @@
 		if (chdir("/") == -1)
 			return (0);
 
-		write_pid_to_lock(ctx->lock_fd);
 		return (1);
 	}
 #endif
 
 static int	lock_file(t_ctx *ctx)
 {
-	ctx->lock_fd = open(LOCK_FILE, O_RDWR | O_CREAT | O_EXCL, 0777);
+	ctx->lock_fd = open(LOCK_FILE, O_RDWR | O_CREAT, 0777);
 	if (ctx->lock_fd < 0)
 	{
 		logger_log(LOG_ERROR, "Failed to open " LOCK_FILE " %s", strerror(errno));
@@ -179,16 +178,14 @@ int	ctx_init(t_ctx *ctx)
 	ctx->running = true;
 	setup_signals();
 	logger_log(LOG_INFO, "Starting ft_shield");
-	if (!lock_file(ctx))
-		return (0);
-	logger_log(LOG_INFO, "Locked " LOCK_FILE);
 	#if DO_DAEMON
 		if (!daemonize(ctx))
-		{
-			close(ctx->lock_fd);
 			return (0);
-		}
 	#endif
+	if (!lock_file(ctx))
+		return (0);
+	write_pid_to_lock(ctx->lock_fd);
+	logger_log(LOG_INFO, "Locked " LOCK_FILE);
 	if (!ctx_open_server(ctx))
 		return (0);
 	return (1);
